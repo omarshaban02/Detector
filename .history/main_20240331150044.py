@@ -1,7 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QShortcut
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 from home import Ui_MainWindow
 import pyqtgraph as pg
 from classes import Image, WorkerThread
@@ -12,24 +10,16 @@ from PyQt5.uic import loadUiType
 ui, _ = loadUiType("home.ui")
 
 
-class Application(QMainWindow, ui):
+class Application(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setupUi(self)
 
-        self.scatter_item = pg.ScatterPlotItem(pen="lime", brush = "lime", symbol="x", size=20)
-        self.contour_line_item = pg.PlotDataItem(pen ={'color':"r", 'width': 2} )
-        self.contour_line_item.setZValue(-1)
-        
-        self.initial_contour_points = []
-        
+        self.scatter_item = pg.ScatterPlotItem(x=(1, 1), y=(1, 1), pen=None, symbol="x", size=20)
         self.wgt_contour_input.addItem(self.scatter_item)
-        self.wgt_contour_input.addItem(self.contour_line_item)
 
         self.actionOpen_Image.triggered.connect(self.open_image)
-        
-        
-        # List containing all plotwidgets for ease of access
+
         self.plotwidget_set = [self.wgt_hough_input, self.wgt_hough_edges, self.wgt_hough_output,
                                self.wgt_canny_input, self.wgt_canny_output,
                                self.wgt_contour_input, self.wgt_contour_output]
@@ -40,67 +30,16 @@ class Application(QMainWindow, ui):
                                self.item_contour_input, self.item_contour_output
                                ] = [pg.ImageItem() for _ in range(7)]
 
-        # Initializes all plotwidgets with their items
         self.setup_plotwidgets()
 
         self.btn_start_contour.clicked.connect(self.process_image)
         self.gray_scale_image = None
         self.contour_thread = None
         self.wgt_contour_input.scene().sigMouseClicked.connect(self.on_mouse_click)
-         
-        self.undo_shortcut = QApplication.instance().installEventFilter(self)
-    
-    ################################## Initial Contour Handling Section #########################################
-    # Event filter to handle pressing Ctrl + Z to undo initial contour
-    def eventFilter(self, source, event):
-        if event.type() == event.KeyPress and event.key() == Qt.Key_Z and QApplication.keyboardModifiers() == Qt.ControlModifier:
-            self.undo_last_point()
-            return True
-        return super().eventFilter(source, event)
         
-    def on_mouse_click(self, event):
-        modifiers = QApplication.keyboardModifiers()
-        
-        if event.button() == 1:
-            clicked_point = self.wgt_contour_input.plotItem.vb.mapSceneToView(event.scenePos())
-            print(f"Mouse clicked at {clicked_point}")
-
-            point_x = clicked_point.x()
-            point_y = clicked_point.y()
-
-            self.initial_contour_points.append((point_x, point_y))
-            # self.scatter_item.addPoints(x=[ev.scenePos().x()], y=[ev.scenePos().y()])
-            self.scatter_item.addPoints(x=[clicked_point.x()], y=[clicked_point.y()])
-            self.contour_line_item.setData(x=[p[0] for p in self.initial_contour_points + [self.initial_contour_points[0]]],
-                                        y = [p[1] for p in self.initial_contour_points + [self.initial_contour_points[0]]])
-            
-            if modifiers == Qt.ControlModifier:
-                self.clear_points()
-    
-    def undo_last_point(self):
-        
-        if self.initial_contour_points:
-            self.initial_contour_points.pop()
-            
-            # Update the scatter item
-            self.scatter_item.setData(x=[p[0] for p in self.initial_contour_points],
-                                      y = [p[1] for p in self.initial_contour_points])
-            
-            # Update the line item
-            if len(self.initial_contour_points) > 1:
-                self.contour_line_item.setData(x=[p[0] for p in self.initial_contour_points + [self.initial_contour_points[0]]]
-                                               ,y= [p[1] for p in self.initial_contour_points + [self.initial_contour_points[0]]])
-            else:
-                self.contour_line_item.clear()
-    
-    def clear_points(self):
-        self.initial_contour_points = []
-        # Clear scatter plot
-        self.scatter_item.clear()
-        # Clear line plot
-        self.contour_line_item.clear()
-
-    ################################## END Initial Contour Handling Section #########################################
+    def on_mouse_click(self, ev):
+        print(f"Mouse clicked at {ev.scenePos()}")
+        self.scatter_item.addPoints(x=[ev.scenePos().x()], y=[ev.scenePos().y()])
 
     def update_contour_image(self, image):
         self.display_image(self.item_contour_output, image)
@@ -121,7 +60,6 @@ class Application(QMainWindow, ui):
     @staticmethod
     def display_image(image_item, image):
         image_item.setImage(image)
-        image_item.setZValue(-2)
         image_item.getViewBox().autoRange()
 
     def load_img_file(self, image_path):

@@ -12,7 +12,7 @@ from PyQt5.uic import loadUiType
 ui, _ = loadUiType("home.ui")
 
 
-class Application(QMainWindow, ui):
+class Application(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setupUi(self)
@@ -50,7 +50,7 @@ class Application(QMainWindow, ui):
          
         self.undo_shortcut = QApplication.instance().installEventFilter(self)
     
-    ################################## Initial Contour Handling Section #########################################
+    
     # Event filter to handle pressing Ctrl + Z to undo initial contour
     def eventFilter(self, source, event):
         if event.type() == event.KeyPress and event.key() == Qt.Key_Z and QApplication.keyboardModifiers() == Qt.ControlModifier:
@@ -100,7 +100,6 @@ class Application(QMainWindow, ui):
         # Clear line plot
         self.contour_line_item.clear()
 
-    ################################## END Initial Contour Handling Section #########################################
 
     def update_contour_image(self, image):
         self.display_image(self.item_contour_output, image)
