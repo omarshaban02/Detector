@@ -84,47 +84,71 @@ class Image:
 class WorkerSignals(QObject):
     finished = pyqtSignal()
     update = pyqtSignal(np.ndarray)
+    calc_area_perimeter = pyqtSignal(float, float)
 
 
 class WorkerThread(QThread):
-    def __init__(self, input_image):
+    def __init__(self, input_image, contour_points, epochs=100, edges_img=None):
         super(WorkerThread, self).__init__()
         self.signals = WorkerSignals()
         self.input_image = input_image
+        self.contour_points = np.array(contour_points).astype(int)
+        self.epochs = epochs
+        self.edges_img = edges_img
+        self.contour = None
 
     def run(self):
-        # Row/Column format
-        contour_points = [(88, 156),
-                          (144, 151),
-                          (170, 110),
-                          (205, 155),
-                          (241, 155),
-                          (189, 224),
-                          (135, 225)]
-
         img = np.array(self.input_image)
-        lap = np.array(img_laplacian(img))
-        lap = add_border(lap)
 
-        contour = Contour(contour_points)
+        if self.edges_img is None:
+            edges = np.array(get_img_edges(img))
+        else:
+            edges = np.array(self.edges_img)
 
-        # Add a ton more points
-        contour.insert_points()
-        contour.insert_points()
-        contour.insert_points()
-        contour.insert_points()
-        contour.insert_points()
+        edges = add_border(edges)
+
+        self.contour = Contour(self.contour_points)
+
+        # # Add a ton more points
+        self.contour.insert_points()
+        self.contour.insert_points()
 
         # Create series of images fitting contour
 
-        for i in range(100):
-            lapcpy = np.copy(lap)
-            contour.calc_energies(lapcpy)
-            contour.update_points()
-            contour.draw_contour(lapcpy)
-            self.signals.update.emit(lapcpy)
+        for i in range(self.epochs):
+            updated_img_con = np.copy(edges)
+            img_copy = np.copy(img)
+
+            self.contour.calc_energies(updated_img_con)
+            self.contour.update_points()
+
+            self.contour.draw_contour(img_copy)
+            self.signals.update.emit(img_copy)
+
+            points = list(zip(self.contour.contour_r, self.contour.contour_c))
+            area, perimeter = self.calculate_area(points), self.calculate_perimeter(points)
+            self.signals.calc_area_perimeter.emit(area, perimeter)
 
         self.signals.finished.emit()
+
+    def calculate_perimeter(self, points):
+        perimeter = 0
+        for i in range(len(points)):
+            p1 = points[i]
+            p2 = points[(i + 1) % len(points)]
+            dx = p2[0] - p1[0]
+            dy = p2[1] - p1[1]
+            perimeter += np.sqrt(dx ** 2 + dy ** 2)
+        return perimeter
+
+    def calculate_area(self, points):
+        area = 0
+        for i in range(len(points)):
+            p1 = points[i]
+            p2 = points[(i + 1) % len(points)]
+            area += p1[0] * p2[1] - p1[1] * p2[0]
+        return abs(area) / 2
+
 
 class HoughTransform:
     def __init__(self, input_image):
@@ -143,7 +167,6 @@ class HoughTransform:
         self.output_image = None
         self.out_lines = []
 
-    
     def gaussian(self, img, sigma=1.0):
         """
         Apply Gaussian filter to an image.
@@ -161,9 +184,9 @@ class HoughTransform:
 
         # Apply Gaussian blur
         result = cv2.GaussianBlur(img, kernel_size, sigma)
-        
+
         return result
-        
+
     def sobel(self, img):
         """
         Apply Sobel operator to an image.
@@ -182,52 +205,52 @@ class HoughTransform:
 
         grad_x = convolve2d(img, kernel_x, mode='same', boundary='symm')
         grad_y = convolve2d(img, kernel_y, mode='same', boundary='symm')
-        
+
         gradient_magnitude = np.sqrt(grad_x ** 2 + grad_y ** 2)
         gradient_theta = np.arctan2(grad_y, grad_x)
 
         self.gradient_magnitude = gradient_magnitude
         self.gradient_theta = gradient_theta
-        
+
         return gradient_magnitude, gradient_theta
 
     def non_max_suppression(self, image, theta):
         M, N = image.shape
-        Z = np.zeros((M,N), dtype=np.int32)
+        Z = np.zeros((M, N), dtype=np.int32)
         angle = theta * 180. / np.pi
         angle[angle < 0] += 180
 
-        for i in range(1,M-1):
-            for j in range(1,N-1):
+        for i in range(1, M - 1):
+            for j in range(1, N - 1):
                 try:
                     q = 255
                     r = 255
-                    
-                    # Angle 0
-                    if (0 <= angle[i,j] < 22.5) or (157.5 <= angle[i,j] <= 180):
-                        q = image[i, j+1]
-                        r = image[i, j-1]
-                    # Angle 45
-                    elif (22.5 <= angle[i,j] < 67.5):
-                        q = image[i+1, j-1]
-                        r = image[i-1, j+1]
-                    # Angle 90
-                    elif (67.5 <= angle[i,j] < 112.5):
-                        q = image[i+1, j]
-                        r = image[i-1, j]
-                    # Angle 135
-                    elif (112.5 <= angle[i,j] < 157.5):
-                        q = image[i-1, j-1]
-                        r = image[i+1, j+1]
 
-                    if (image[i,j] >= q) and (image[i,j] >= r):
-                        Z[i,j] = image[i,j]
+                    # Angle 0
+                    if (0 <= angle[i, j] < 22.5) or (157.5 <= angle[i, j] <= 180):
+                        q = image[i, j + 1]
+                        r = image[i, j - 1]
+                    # Angle 45
+                    elif (22.5 <= angle[i, j] < 67.5):
+                        q = image[i + 1, j - 1]
+                        r = image[i - 1, j + 1]
+                    # Angle 90
+                    elif (67.5 <= angle[i, j] < 112.5):
+                        q = image[i + 1, j]
+                        r = image[i - 1, j]
+                    # Angle 135
+                    elif (112.5 <= angle[i, j] < 157.5):
+                        q = image[i - 1, j - 1]
+                        r = image[i + 1, j + 1]
+
+                    if (image[i, j] >= q) and (image[i, j] >= r):
+                        Z[i, j] = image[i, j]
                     else:
-                        Z[i,j] = 0
+                        Z[i, j] = 0
 
                 except IndexError as e:
                     pass
-        
+
         return Z
 
     def threshold(self, image, low_threshold_ratio=0.05, high_threshold_ratio=0.09):
@@ -235,7 +258,7 @@ class HoughTransform:
         low_threshold = high_threshold * low_threshold_ratio
 
         M, N = image.shape
-        result = np.zeros((M,N), dtype=np.int32)
+        result = np.zeros((M, N), dtype=np.int32)
 
         weak = np.int32(25)
         strong = np.int32(255)
@@ -252,13 +275,15 @@ class HoughTransform:
 
     def hysteresis(self, image, weak, strong=255):
         M, N = image.shape
-        for i in range(1, M-1):
-            for j in range(1, N-1):
-                if image[i,j] == weak:
+        for i in range(1, M - 1):
+            for j in range(1, N - 1):
+                if image[i, j] == weak:
                     try:
-                        if ((image[i+1, j-1] == strong) or (image[i+1, j] == strong) or (image[i+1, j+1] == strong)
-                            or (image[i, j-1] == strong) or (image[i, j+1] == strong)
-                            or (image[i-1, j-1] == strong) or (image[i-1, j] == strong) or (image[i-1, j+1] == strong)):
+                        if ((image[i + 1, j - 1] == strong) or (image[i + 1, j] == strong) or (
+                                image[i + 1, j + 1] == strong)
+                                or (image[i, j - 1] == strong) or (image[i, j + 1] == strong)
+                                or (image[i - 1, j - 1] == strong) or (image[i - 1, j] == strong) or (
+                                        image[i - 1, j + 1] == strong)):
                             image[i, j] = strong
                         else:
                             image[i, j] = 0
@@ -267,30 +292,31 @@ class HoughTransform:
         self.hysteresis_image = image
         return image
 
-    def canny_edge_detection(self, sigma = 0.5, low_threshold_ratio=0.05, high_threshold_ratio=0.07):
+    def canny_edge_detection(self, sigma=0.5, low_threshold_ratio=0.05, high_threshold_ratio=0.07):
         image = self.input_image
         # Convert to grayscale
         gray_image = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-        
+
         # Apply Gaussian filter
-        self.img_gaussian = self.gaussian(gray_image ,sigma)
-        
+        self.img_gaussian = self.gaussian(gray_image, sigma)
+
         # Sobel filtering
         gradient_magnitude, gradient_theta = self.sobel(self.img_gaussian)
-        
+
         # Non-maximum suppression
         suppressed_image = self.non_max_suppression(gradient_magnitude, gradient_theta)
-        
+
         # Thresholding
-        thresholded_image, weak_pixel, strong_pixel = self.threshold(suppressed_image, low_threshold_ratio, high_threshold_ratio)
-        
+        thresholded_image, weak_pixel, strong_pixel = self.threshold(suppressed_image, low_threshold_ratio,
+                                                                     high_threshold_ratio)
+
         # Hysteresis
         final_image = self.hysteresis(thresholded_image, weak_pixel, strong_pixel)
-        
+
         self.edge_image_canny = final_image
 
         return final_image
-    
+
     def calculate_ranges(self, edge_image, num_rhos, num_thetas):
         img_height, img_width = edge_image.shape[:2]
         diag_len = np.sqrt(np.square(img_height) + np.square(img_width))
@@ -316,7 +342,8 @@ class HoughTransform:
         return hough_rhos, hough_thetas
 
     def find_hough_lines(self, image, edge_image, num_rhos, num_thetas, bin_threshold):
-        img_height, img_width, diag_len, dtheta, drho, thetas, rhos = self.calculate_ranges(edge_image, num_rhos, num_thetas)
+        img_height, img_width, diag_len, dtheta, drho, thetas, rhos = self.calculate_ranges(edge_image, num_rhos,
+                                                                                            num_thetas)
         cos_thetas, sin_thetas = self.calculate_cos_sin_thetas(thetas)
         self.accumulator = np.zeros((len(rhos), len(thetas)))
         img_height_half = img_height / 2
@@ -351,14 +378,13 @@ class HoughTransform:
         self.output_image = output_img
         self.out_lines = out_lines
         return output_img, out_lines
-    
 
     def assess_edge_quality(self, edge_image):
         # Example: Assess edge quality based on edge density
         edge_density = np.sum(edge_image) / (edge_image.shape[0] * edge_image.shape[1])
         return edge_density
 
-    def tune_parameters(self, edge_image, num_rho = 180, num_theta = 180, bin_threshold = 156):
+    def tune_parameters(self, edge_image, num_rho=180, num_theta=180, bin_threshold=156):
         # Initialize parameters
         default_num_rho = num_rho
         default_num_theta = num_theta

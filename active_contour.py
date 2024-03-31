@@ -3,7 +3,7 @@ import numpy as np
 
 
 # Run edge detection on image
-def img_laplacian(img):
+def get_img_edges(img):
     return cv2.Canny(img, 30, 150)
 
 
@@ -25,6 +25,7 @@ class ContourPoint:
     def __init__(self, row, col):
         self.row = row
         self.col = col
+        self.chain_code = []
 
         # Must combine energies so that:
         # 	contour grows/shrinks
@@ -33,12 +34,6 @@ class ContourPoint:
 
         # Total Energies
         self.energies = np.empty((7, 7), dtype=float)
-
-    # Draws a single point in the contour
-    def draw_point(self, img, val=255, w1=15, w2=4):
-        '''Draws a cross on image at point in image'''
-        img[self.row - w1 // 2:self.row + w1 // 2 + 1, self.col - w2 // 2:self.col + w2 // 2 + 1] = val
-        img[self.row - w2 // 2:self.row + w2 // 2 + 1, self.col - w1 // 2:self.col + w1 // 2 + 1] = val
 
     # Calculates energies to move points away from each other
     # 	Moves to point which is furthest from all contour points
@@ -83,7 +78,16 @@ class ContourPoint:
 
         for i in range(-3, 4):
             for j in range(-3, 4):
-                energy_gradient[i + 3, j + 3] = np.square(img[r + i, c + j])
+                new_r = r + i
+                new_c = c + j
+
+                if new_r >= img.shape[0]:
+                    new_r = img.shape[0] - 1
+
+                if new_c >= img.shape[1]:
+                    new_c = img.shape[1] - 1
+                print("Indices:", new_r, new_c, "image shape:", img.shape)
+                energy_gradient[i + 3, j + 3] = np.square(img[new_r, new_c])
 
         if to_low:
             self.energies = np.dstack((self.energies, norm_0_1(energy_gradient)))
@@ -110,6 +114,40 @@ class ContourPoint:
         # Add column adjustment, same deal as row adjust
         self.col += minimum_energy % 7 - 3
 
+    def calculate_chain_code(self, next_point):
+        # Calculate direction from current point to the next point
+        dx = next_point.col - self.col
+        dy = next_point.row - self.row
+
+        # Determine the chain code based on the direction
+        if dx == 1 and dy == 0:
+            code = 0
+        elif dx == 1 and dy == 1:
+            code = 1
+        elif dx == 0 and dy == 1:
+            code = 2
+        elif dx == -1 and dy == 1:
+            code = 3
+        elif dx == -1 and dy == 0:
+            code = 4
+        elif dx == -1 and dy == -1:
+            code = 5
+        elif dx == 0 and dy == -1:
+            code = 6
+        elif dx == 1 and dy == -1:
+            code = 7
+        else:
+            code = -1  # Invalid code
+
+        # Store the chain code in the chain_code attribute
+        self.chain_code.append(code)
+
+    # Draws a single point in the contour
+    def draw_point(self, img, val=255, w1=15, w2=4):
+        '''Draws a cross on image at point in image'''
+        img[self.row - w1 // 2:self.row + w1 // 2 + 1, self.col - w2 // 2:self.col + w2 // 2 + 1] = val
+        img[self.row - w2 // 2:self.row + w2 // 2 + 1, self.col - w1 // 2:self.col + w1 // 2 + 1] = val
+
 
 class Contour:
     def __init__(self, contour=None):
@@ -134,7 +172,7 @@ class Contour:
             self.average_distance = np.average(
                 np.sqrt(np.power(self.contour_r - tmp_r, 2) + np.power(self.contour_c - tmp_c, 2)))
 
-    def draw_contour(self, img, val=255, w1=15, w2=2):
+    def draw_contour(self, img, val=0, w1=15, w2=2):
         '''Draws each point in contour and line between them'''
         for i in range(len(self.contour)):
             self.contour[i].draw_point(img)
@@ -166,11 +204,15 @@ class Contour:
         self.contour_r = []
         self.contour_c = []
 
-        for point in self.contour:
+        for i, point in enumerate(self.contour):
             point.adjust_point()
 
             self.contour_r.append(point.row)
             self.contour_c.append(point.col)
+
+            # Calculate chain code for the current point
+            next_point = self.contour[(i + 1) % len(self.contour)]
+            point.calculate_chain_code(next_point)
 
         self.contour_r = np.array(self.contour_r)
         self.contour_c = np.array(self.contour_c)
@@ -181,6 +223,26 @@ class Contour:
 
         self.average_distance = np.average(
             np.sqrt(np.power(self.contour_r - tmp_r, 2) + np.power(self.contour_c - tmp_c, 2)))
+
+    # def update_points(self):
+    #     self.contour_r = []
+    #     self.contour_c = []
+    #
+    #     for point in self.contour:
+    #         point.adjust_point()
+    #
+    #         self.contour_r.append(point.row)
+    #         self.contour_c.append(point.col)
+    #
+    #     self.contour_r = np.array(self.contour_r)
+    #     self.contour_c = np.array(self.contour_c)
+    #     self.contour = np.array(self.contour)
+    #
+    #     tmp_r = np.roll(np.copy(self.contour_r), 1)
+    #     tmp_c = np.roll(np.copy(self.contour_c), 1)
+    #
+    #     self.average_distance = np.average(
+    #         np.sqrt(np.power(self.contour_r - tmp_r, 2) + np.power(self.contour_c - tmp_c, 2)))
 
     def insert_points(self):
         tmp_contour = []

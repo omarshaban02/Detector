@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>969</width>
-    <height>710</height>
+    <width>1135</width>
+    <height>789</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -267,18 +267,11 @@ QPlotWidget{
 }</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QGridLayout" name="gridLayout" rowstretch="1,0" columnstretch="0">
-    <item row="1" column="0">
-     <widget class="QPushButton" name="btn_start_contour">
-      <property name="text">
-       <string>Start Contour</string>
-      </property>
-     </widget>
-    </item>
+   <layout class="QGridLayout" name="gridLayout" rowstretch="1" columnstretch="0">
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_ht">
        <attribute name="title">
@@ -1343,8 +1336,27 @@ font-size:15px;</string>
         <string>Active Contour</string>
        </attribute>
        <layout class="QGridLayout" name="gridLayout_4">
+        <item row="0" column="1">
+         <widget class="PlotWidget" name="wgt_contour_output" native="true">
+          <property name="sizeIncrement">
+           <size>
+            <width>1</width>
+            <height>1</height>
+           </size>
+          </property>
+          <property name="baseSize">
+           <size>
+            <width>200</width>
+            <height>200</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background: deep blue;</string>
+          </property>
+         </widget>
+        </item>
         <item row="0" column="0">
-         <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <layout class="QVBoxLayout" name="verticalLayout_16" stretch="1,0,0,0">
           <item>
            <widget class="PlotWidget" name="wgt_contour_input" native="true">
             <property name="sizeIncrement">
@@ -1365,21 +1377,57 @@ font-size:15px;</string>
            </widget>
           </item>
           <item>
-           <widget class="PlotWidget" name="wgt_contour_output" native="true">
-            <property name="sizeIncrement">
-             <size>
-              <width>1</width>
-              <height>1</height>
-             </size>
-            </property>
-            <property name="baseSize">
-             <size>
-              <width>200</width>
-              <height>200</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background: deep blue;</string>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QLabel" name="label">
+              <property name="text">
+               <string>Area : </string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lbl_area">
+              <property name="text">
+               <string>0.0</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_14">
+            <item>
+             <widget class="QLabel" name="label_2">
+              <property name="text">
+               <string>Perimeter : </string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lbl_perimeter">
+              <property name="text">
+               <string>0.0</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btn_start_contour">
+            <property name="text">
+             <string>Start Contour</string>
             </property>
            </widget>
           </item>
@@ -1396,7 +1444,7 @@ font-size:15px;</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>969</width>
+     <width>1135</width>
      <height>30</height>
     </rect>
    </property>

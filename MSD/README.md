@@ -1,1 +1,0 @@
-# snaky-detector
