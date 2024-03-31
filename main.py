@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from home import Ui_MainWindow
 import pyqtgraph as pg
-from classes import Image, WorkerThread
+from classes import Image, WorkerThread, HoughTransform
 import cv2
 
 from PyQt5.uic import loadUiType
@@ -80,7 +80,20 @@ class Application(QMainWindow, ui):
         self.btn_start_contour.clicked.connect(self.process_image)
         self.gray_scale_image = None
         self.contour_thread = None
+        ############################################ Connections ###################################################
+        self.btn_hough_apply.clicked.connect(self.start_oreder)
+        self.slider_canny_sigma.valueChanged.connect(self.hough_line_transform)
+        self.slider_canny_low.valueChanged.connect(self.hough_line_transform)
+        self.slider_canny_high.valueChanged.connect(self.hough_line_transform)
         self.wgt_contour_input.scene().sigMouseClicked.connect(self.on_mouse_click)
+        self.slider_rho.valueChanged.connect(self.hough_line_transform)
+        self.slider_theta.valueChanged.connect(self.hough_line_transform)
+        self.slider_thresh.valueChanged.connect(self.hough_line_transform)
+        
+        self.slider_rho.setRange(150 , 400)
+        self.slider_theta.setRange(150 , 400)
+        self.slider_thresh.setRange(150 , 400)
+        #############################################################################################################
          
         self.undo_shortcut = QApplication.instance().installEventFilter(self)
         
@@ -160,6 +173,44 @@ class Application(QMainWindow, ui):
         self.contour_thread.signals.finished.connect(self.processing_finished)
         self.contour_thread.start()
         
+     ################################ Line Hough  Transform #############################
+    
+    def hough_line_transform(self):
+        sigma_temp = self.slider_canny_sigma.value()
+        min_thresh_temp = (self.slider_canny_low.value() )
+        max_thres_temp =  (self.slider_canny_high.value() )
+        sigma = sigma_temp
+        min_thresh = min_thresh_temp / 1000
+        max_thresh = max_thres_temp / 1000
+        print (sigma , min_thresh, max_thresh)
+        edge_image = self.hough_obj.canny_edge_detection( sigma,min_thresh ,max_thresh)
+        if edge_image is not  None:
+            default_num_rho_temp= self.slider_rho.value()
+            default_num_theta_temp= self.slider_theta.value()
+            default_bin_threshold_temp= self.slider_thresh.value()
+
+            default_num_rho= default_num_rho_temp
+            default_num_theta= default_num_theta_temp
+            default_bin_threshold= default_bin_threshold_temp
+            print(default_num_rho , default_bin_threshold, default_num_theta)
+            num_rho, num_theta, bin_threshold = self.hough_obj.tune_parameters(edge_image, default_num_rho, default_num_theta, default_bin_threshold)
+            print (num_rho, num_theta, bin_threshold )
+            return edge_image, num_rho, num_theta, bin_threshold
+            
+
+    def start_oreder(self):
+        if self.chk_lines.isChecked():
+            # Assuming self.hough_line_transform() returns num_rho, num_theta, bin_threshold
+            edge_image, num_rho, num_theta, bin_threshold = self.hough_line_transform()
+
+            # Assuming edge_image is already defined
+            line_img, lines = self.hough_obj.find_hough_lines(self.loaded_image, edge_image, num_rho, num_theta, bin_threshold)
+            
+            # Assuming display_image is a method that displays the image in the GUI
+            self.display_image(self.item_hough_output , cv2.cvtColor(line_img, cv2.COLOR_BGR2RGB))
+            self.display_image(self.item_hough_edges , edge_image)
+            self.display_image(self.item_canny_output , edge_image)
+
     
 
     # ############################### Misc Functions ################################
@@ -174,6 +225,7 @@ class Application(QMainWindow, ui):
         # Loads the image using imread, converts it to RGB, then rotates it 90 degrees clockwise
         self.loaded_image = cv2.rotate(cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB), cv2.ROTATE_90_CLOCKWISE)
         self.img_obj = Image(self.loaded_image)
+        self.hough_obj = HoughTransform(self.loaded_image)
         self.gray_scale_image = self.img_obj.gray_scale_image
         for item in [self.item_hough_input, self.item_canny_input, self.item_contour_input]:
             self.display_image(item, self.img_obj.gray_scale_image)
