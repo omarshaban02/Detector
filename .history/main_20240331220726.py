@@ -12,10 +12,11 @@ from PyQt5.uic import loadUiType
 ui, _ = loadUiType("home.ui")
 
 
-class Application(QMainWindow, ui):
+class Application(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setupUi(self)
+        self.setAttribute(Qt.WA_AlwaysShowToolTips, True)
         
 
         # HOUGH PARAMETERS
@@ -29,10 +30,7 @@ class Application(QMainWindow, ui):
         
         
         # CANNY PARAMETERS
-        self.canny_sigma = 0
-        self.canny_low = 0
-        self.canny_high = 0
-        self.canny_kernel_size = 0
+        self.canny_sigma, self.canny_low_threshold, self.canny_high_threshold, self.canny_kernel_size = 0
         
         self.dict_line_sliders = {
             self.slider_rho : self.line_rho,
@@ -100,11 +98,7 @@ class Application(QMainWindow, ui):
             return True
         return super().eventFilter(source, event)
         
-        
-    # Handles clicking on contour input display widget
     def on_mouse_click(self, event):
-        
-        # Allows for checking if a keyboard modifier is pressed, ex: Ctrl
         modifiers = QApplication.keyboardModifiers()
         
         if event.button() == 1:
@@ -214,14 +208,6 @@ class Application(QMainWindow, ui):
         self.slider_circle_threshold.valueChanged.connect(lambda value, param = "circle_threshold": setattr(self, param, value))
         self.slider_circle_min_dist.valueChanged.connect(lambda value, param = "circle_min_dist": setattr(self, param, value))
         
-    def setup_canny_sliders(self):
-        
-        # To change how a value is receieved, just change the 'value' in setattr()
-        
-        self.slider_canny_sigma.valueChanged.connect(lambda value, param = "canny_sigma": setattr(self, param, value))
-        self.slider_canny_low.valueChanged.connect(lambda value, param = "canny_low": setattr(self, param, value))
-        self.slider_canny_high.valueChanged.connect(lambda value, param = "canny_high": setattr(self, param, value))
-        self.slider_canny_k_size.valueChanged.connect(lambda value, param = "canny_k_size": setattr(self, param, value))
        
     def setup_checkboxes(self):
         for checkbox in [self.chk_lines, self.chk_circles, self.chk_ellipses]:

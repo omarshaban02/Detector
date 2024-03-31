@@ -12,13 +12,14 @@ from PyQt5.uic import loadUiType
 ui, _ = loadUiType("home.ui")
 
 
-class Application(QMainWindow, ui):
+class Application(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(QMainWindow, self).__init__()
         self.setupUi(self)
+        self.setAttribute(Qt.WA_AlwaysShowToolTips, True)
         
 
-        # HOUGH PARAMETERS
+
         self.line_rho = 0
         self.line_theta = 0
         self.line_thresh = 0
@@ -26,13 +27,6 @@ class Application(QMainWindow, ui):
         self.circle_max_radius = 0
         self.circle_threshold = 0
         self.circle_min_dist = 0
-        
-        
-        # CANNY PARAMETERS
-        self.canny_sigma = 0
-        self.canny_low = 0
-        self.canny_high = 0
-        self.canny_kernel_size = 0
         
         self.dict_line_sliders = {
             self.slider_rho : self.line_rho,
@@ -74,8 +68,8 @@ class Application(QMainWindow, ui):
                                self.item_contour_input, self.item_contour_output
                                ] = [pg.ImageItem() for _ in range(7)]
 
-        # Initializes application components
-        self.init_application()
+        # Initializes all plotwidgets with their items
+        self.setup_plotwidgets()
 
         self.btn_start_contour.clicked.connect(self.process_image)
         self.gray_scale_image = None
@@ -100,11 +94,7 @@ class Application(QMainWindow, ui):
             return True
         return super().eventFilter(source, event)
         
-        
-    # Handles clicking on contour input display widget
     def on_mouse_click(self, event):
-        
-        # Allows for checking if a keyboard modifier is pressed, ex: Ctrl
         modifiers = QApplication.keyboardModifiers()
         
         if event.button() == 1:
@@ -206,26 +196,18 @@ class Application(QMainWindow, ui):
         
         # To change how a value is receieved, just change the 'value' in setattr()
         
-        self.slider_rho.valueChanged.connect(lambda value, param = "line_rho": setattr(self, param, value))
-        self.slider_theta.valueChanged.connect(lambda value, param = "line_theta": setattr(self, param, value))
-        self.slider_thresh.valueChanged.connect(lambda value, param = "line_thresh": setattr(self, param, value))
-        self.slider_circle_min_radius.valueChanged.connect(lambda value, param = "circle_min_radius": setattr(self, param, value))
-        self.slider_circle_max_radius.valueChanged.connect(lambda value, param = "circle_max_radius": setattr(self, param, value))
-        self.slider_circle_threshold.valueChanged.connect(lambda value, param = "circle_threshold": setattr(self, param, value))
-        self.slider_circle_min_dist.valueChanged.connect(lambda value, param = "circle_min_dist": setattr(self, param, value))
+        self.slider_rho.valueChanged.connect(lambda value, param = self.line_rho: setattr(self, param, value))
+        self.slider_theta.valueChanged.connect(lambda value, param = self.line_rho: setattr(self, param, value))
+        self.slider_thresh.valueChanged.connect(lambda value, param = self.line_rho: setattr(self, param, value))
+        self.slider_circle_min_radius.valueChanged.connect(lambda value, param = self.circle_min_radius: setattr(self, param, value))
+        self.slider_circle_max_radius.valueChanged.connect(lambda value, param = self.circle_max_radius: setattr(self, param, value))
+        self.slider_circle_threshold.valueChanged.connect(lambda value, param = self.circle_threshold: setattr(self, param, value))
+        self.slider_circle_min_dist.valueChanged.connect(lambda value, param = self.circle_min_dist: setattr(self, param, value))
         
-    def setup_canny_sliders(self):
-        
-        # To change how a value is receieved, just change the 'value' in setattr()
-        
-        self.slider_canny_sigma.valueChanged.connect(lambda value, param = "canny_sigma": setattr(self, param, value))
-        self.slider_canny_low.valueChanged.connect(lambda value, param = "canny_low": setattr(self, param, value))
-        self.slider_canny_high.valueChanged.connect(lambda value, param = "canny_high": setattr(self, param, value))
-        self.slider_canny_k_size.valueChanged.connect(lambda value, param = "canny_k_size": setattr(self, param, value))
        
     def setup_checkboxes(self):
         for checkbox in [self.chk_lines, self.chk_circles, self.chk_ellipses]:
-            checkbox.clicked.connect(self.change_stacked_widget_tab)
+            checkbox.Clicked.connect(self.change_stacked_widget_tab)
        
     def change_stacked_widget_tab(self):
         index_dict = {
@@ -233,6 +215,11 @@ class Application(QMainWindow, ui):
             self.chk_circles: 1,
             self.chk_ellipses: 2
         }
+        
+        if  self.chk_circles.isChecked() or self.chk_lines.isChecked() or self.chk_ellipses.isChecked() != 1:
+            self.stackedWidget.setVisible(False)
+        else:
+            self.stackedWidget.setVisible(True)
             
         
         self.stackedWidget.setCurrentIndex(index_dict[self.sender()])
