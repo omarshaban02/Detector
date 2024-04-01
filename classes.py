@@ -1,7 +1,7 @@
 from active_contour import *
 from PyQt5.QtCore import QThread, pyqtSignal, QObject
 from scipy.signal import convolve2d
-
+import numpy as np
 
 class Image:
     def __init__(self, image):
@@ -464,3 +464,36 @@ class HoughTransform:
         print("no. of circles", len(circles))
         self.draw_circles(img, circles)
         return img
+
+
+    def detect_ellipses_contour(self, image, min_radius, max_radius, min_distance):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+
+        edges = cv2.Canny(blurred, 50, 150)
+
+        contours, _ = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+        ellipses = []
+
+        for contour in contours:
+            # If the contour has enough points, fit an ellipse
+            if len(contour) >= 5:
+                ellipse = cv2.fitEllipse(contour)
+                # Check if the ellipse meets radius and distance criteria
+                if min(ellipse[1]) >= min_radius and max(ellipse[1]) <= max_radius:
+                    valid = True
+                    for other in ellipses:
+                        # Checking distance to other ellipses
+                        dist = np.linalg.norm(np.array(ellipse[0]) - np.array(other[0]))
+                        if dist < min_distance:
+                            valid = False
+                            break
+                    if valid:
+                        # Add the ellipse to the list of valid ellipses
+                        ellipses.append(ellipse)
+                        # Draw the ellipse on the original image
+                        cv2.ellipse(image, ellipse, (0, 255, 0), 2)
+
+        return image, edges

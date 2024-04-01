@@ -25,6 +25,10 @@ class Application(QMainWindow, ui):
         self.circle_max_radius = 0
         self.circle_threshold = 0
         self.circle_min_dist = 0
+        self.ellipse_min_radius = 0
+        self.ellipse_max_radius = 0
+        self.ellipse_threshold = 0
+        self.ellipse_min_dist = 0
 
         # CANNY PARAMETERS
         self.canny_sigma = 0
@@ -233,6 +237,10 @@ class Application(QMainWindow, ui):
             return (edge_image, self.slider_circle_min_radius.value(), self.slider_circle_max_radius.value(),
                     self.slider_circle_threshold.value(),  self.slider_circle_min_dist.value())
 
+
+
+
+
     def start_order(self):
         if self.chk_lines.isChecked():
             # Assuming self.hough_line_transform() returns num_rho, num_theta, bin_threshold
@@ -256,6 +264,14 @@ class Application(QMainWindow, ui):
             self.display_image(self.item_hough_edges, edge_image)
             self.display_image(self.item_canny_output, edge_image)
             print("Circles are Detected")
+
+        if self.chk_ellipses.isChecked():
+            image_with_ellipses, edge_image = self.hough_obj.detect_ellipses_contour(self.loaded_image, min_radius=10,
+                                                                      max_radius=500, min_distance=0)
+            self.display_image(self.item_hough_output, image_with_ellipses)
+            self.display_image(self.item_hough_edges, edge_image)
+            self.display_image(self.item_canny_output, edge_image)
+
 
     # ############################### Misc Functions ################################
 
