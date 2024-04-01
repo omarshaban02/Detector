@@ -74,7 +74,7 @@ class Application(QMainWindow, ui):
         self.gray_scale_image = None
         self.contour_thread = None
         ############################################ Connections ###################################################
-        self.btn_hough_apply.clicked.connect(self.start_oreder)
+        self.btn_hough_apply.clicked.connect(self.start_order)
         self.slider_canny_sigma.valueChanged.connect(self.hough_line_transform)
         self.slider_canny_low.valueChanged.connect(self.hough_line_transform)
         self.slider_canny_high.valueChanged.connect(self.hough_line_transform)
@@ -213,7 +213,27 @@ class Application(QMainWindow, ui):
             print(num_rho, num_theta, bin_threshold)
             return edge_image, num_rho, num_theta, bin_threshold
 
-    def start_oreder(self):
+    def hough_circle_transform(self):
+        sigma_temp = self.slider_canny_sigma.value()
+        min_thresh_temp = (self.slider_canny_low.value())
+        max_thresh_temp = (self.slider_canny_high.value())
+        sigma = sigma_temp
+        min_thresh = min_thresh_temp / 1000
+        max_thresh = max_thresh_temp / 1000
+        print(sigma, min_thresh, max_thresh)
+        # edge_image = self.hough_obj.canny_edge_detection(sigma, min_thresh, max_thresh)
+        gray = cv2.cvtColor(self.loaded_image, cv2.COLOR_BGR2GRAY)
+
+        # Smooth the image before applying edge detection
+        blured_img = cv2.medianBlur(gray, self.slider_canny_k_size.value())
+        # Apply Canny edge detection
+        edge_image = cv2.Canny(blured_img, self.slider_canny_low.value(), self.slider_canny_high.value())
+
+        if edge_image is not None:
+            return (edge_image, self.slider_circle_min_radius.value(), self.slider_circle_max_radius.value(),
+                    self.slider_circle_threshold.value(),  self.slider_circle_min_dist.value())
+
+    def start_order(self):
         if self.chk_lines.isChecked():
             # Assuming self.hough_line_transform() returns num_rho, num_theta, bin_threshold
             edge_image, num_rho, num_theta, bin_threshold = self.hough_line_transform()
@@ -226,6 +246,16 @@ class Application(QMainWindow, ui):
             self.display_image(self.item_hough_output, cv2.cvtColor(line_img, cv2.COLOR_BGR2RGB))
             self.display_image(self.item_hough_edges, edge_image)
             self.display_image(self.item_canny_output, edge_image)
+
+        if self.chk_circles.isChecked():
+            edge_image, min_radius, max_radius, threshold, min_dist_factor = self.hough_circle_transform()
+            hough_circles = self.hough_obj.main_hough_circle(self.loaded_image, edge_image, min_radius, max_radius,
+                                             threshold, min_dist_factor)
+
+            self.display_image(self.item_hough_output, hough_circles)
+            self.display_image(self.item_hough_edges, edge_image)
+            self.display_image(self.item_canny_output, edge_image)
+            print("Circles are Detected")
 
     # ############################### Misc Functions ################################
 

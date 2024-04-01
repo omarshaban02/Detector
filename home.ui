@@ -271,7 +271,7 @@ QPlotWidget{
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab_ht">
        <attribute name="title">
@@ -294,7 +294,6 @@ QPlotWidget{
                <font>
                 <family>Ubuntu</family>
                 <pointsize>-1</pointsize>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
@@ -302,7 +301,7 @@ QPlotWidget{
                <string>Lines</string>
               </property>
               <property name="checked">
-               <bool>true</bool>
+               <bool>false</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup</string>
@@ -321,12 +320,14 @@ QPlotWidget{
                <font>
                 <family>Ubuntu</family>
                 <pointsize>-1</pointsize>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
               <property name="text">
                <string>Circles</string>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
               </property>
               <attribute name="buttonGroup">
                <string notr="true">buttonGroup</string>
@@ -345,7 +346,6 @@ QPlotWidget{
                <font>
                 <family>Ubuntu</family>
                 <pointsize>-1</pointsize>
-                <weight>75</weight>
                 <bold>true</bold>
                </font>
               </property>
@@ -422,7 +422,6 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
@@ -446,7 +445,6 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
@@ -500,7 +498,6 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
@@ -524,7 +521,6 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
@@ -584,7 +580,6 @@ font-size:15px;</string>
                      <font>
                       <family>Ubuntu</family>
                       <pointsize>-1</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -608,7 +603,6 @@ font-size:15px;</string>
                      <font>
                       <family>Ubuntu</family>
                       <pointsize>-1</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
@@ -687,7 +681,6 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
@@ -711,12 +704,11 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
-                        <string>0</string>
+                        <string>50</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
@@ -735,6 +727,21 @@ font-size:15px;</string>
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>300</number>
+                     </property>
+                     <property name="singleStep">
+                      <number>10</number>
+                     </property>
+                     <property name="pageStep">
+                      <number>50</number>
+                     </property>
+                     <property name="value">
+                      <number>50</number>
                      </property>
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -765,7 +772,6 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
@@ -789,12 +795,11 @@ font-size:15px;</string>
                         <font>
                          <family>Ubuntu</family>
                          <pointsize>-1</pointsize>
-                         <weight>75</weight>
                          <bold>true</bold>
                         </font>
                        </property>
                        <property name="text">
-                        <string>0</string>
+                        <string>100</string>
                        </property>
                        <property name="alignment">
                         <set>Qt::AlignCenter</set>
@@ -813,6 +818,21 @@ font-size:15px;</string>
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
+                     </property>
+                     <property name="minimum">
+                      <number>1</number>
+                     </property>
+                     <property name="maximum">
+                      <number>300</number>
+                     </property>
+                     <property name="singleStep">
+                      <number>10</number>
+                     </property>
+                     <property name="pageStep">
+                      <number>50</number>
+                     </property>
+                     <property name="value">
+                      <number>100</number>
                      </property>
                      <property name="orientation">
                       <enum>Qt::Horizontal</enum>
@@ -841,7 +861,6 @@ font-size:15px;</string>
                           <font>
                            <family>Ubuntu</family>
                            <pointsize>-1</pointsize>
-                           <weight>75</weight>
                            <bold>true</bold>
                           </font>
                          </property>
@@ -865,12 +884,11 @@ font-size:15px;</string>
                           <font>
                            <family>Ubuntu</family>
                            <pointsize>-1</pointsize>
-                           <weight>75</weight>
                            <bold>true</bold>
                           </font>
                          </property>
                          <property name="text">
-                          <string>0</string>
+                          <string>100</string>
                          </property>
                          <property name="alignment">
                           <set>Qt::AlignCenter</set>
@@ -889,6 +907,18 @@ font-size:15px;</string>
                          <horstretch>0</horstretch>
                          <verstretch>0</verstretch>
                         </sizepolicy>
+                       </property>
+                       <property name="maximum">
+                        <number>300</number>
+                       </property>
+                       <property name="singleStep">
+                        <number>10</number>
+                       </property>
+                       <property name="pageStep">
+                        <number>50</number>
+                       </property>
+                       <property name="value">
+                        <number>100</number>
                        </property>
                        <property name="orientation">
                         <enum>Qt::Horizontal</enum>
@@ -927,12 +957,11 @@ font-size:15px;</string>
                      <font>
                       <family>Ubuntu</family>
                       <pointsize>-1</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="text">
-                     <string>Min Dist:</string>
+                     <string>Dist Factor:</string>
                     </property>
                     <property name="buddy">
                      <cstring>slider_rho</cstring>
@@ -951,12 +980,11 @@ font-size:15px;</string>
                      <font>
                       <family>Ubuntu</family>
                       <pointsize>-1</pointsize>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="text">
-                     <string>0</string>
+                     <string>16</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -975,6 +1003,15 @@ font-size:15px;</string>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimum">
+                   <number>1</number>
+                  </property>
+                  <property name="maximum">
+                   <number>50</number>
+                  </property>
+                  <property name="value">
+                   <number>16</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1117,6 +1154,9 @@ font-size:15px;</string>
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="value">
+                   <number>1</number>
+                  </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
                   </property>
@@ -1156,7 +1196,7 @@ font-size:15px;</string>
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>0</string>
+                     <string>50</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -1172,6 +1212,12 @@ font-size:15px;</string>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="maximum">
+                   <number>300</number>
+                  </property>
+                  <property name="value">
+                   <number>50</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1212,7 +1258,7 @@ font-size:15px;</string>
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>1</string>
+                     <string>70</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -1228,6 +1274,12 @@ font-size:15px;</string>
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="maximum">
+                   <number>300</number>
+                  </property>
+                  <property name="value">
+                   <number>70</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1268,7 +1320,7 @@ font-size:15px;</string>
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>3</string>
+                     <string>5</string>
                     </property>
                     <property name="alignment">
                      <set>Qt::AlignCenter</set>
@@ -1296,6 +1348,9 @@ font-size:15px;</string>
                   </property>
                   <property name="pageStep">
                    <number>2</number>
+                  </property>
+                  <property name="value">
+                   <number>5</number>
                   </property>
                   <property name="orientation">
                    <enum>Qt::Horizontal</enum>
@@ -1445,7 +1500,7 @@ font-size:15px;</string>
      <x>0</x>
      <y>0</y>
      <width>1135</width>
-     <height>30</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

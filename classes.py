@@ -408,3 +408,59 @@ class HoughTransform:
             bin_threshold = default_bin_threshold
 
         return num_rho, num_theta, bin_threshold
+
+    # Circle ---------------------------------------
+
+    def draw_circles(self, image, centers):
+        for center in centers:
+            cv2.circle(image, (center[0], center[1]), center[2], (0, 0, 255), 2)
+
+    def hough_circle(self, img_edges, min_radius, max_radius, threshold, min_dist):
+        h, w = img_edges.shape
+        accumulator = np.zeros((h, w, max_radius - min_radius + 1))
+
+        # Generate arrays of x and y coordinates for edge pixels
+        y_coords, x_coords = np.where(img_edges > 0)
+
+        # Generate arrays of radius and angle values
+        radius_values = np.arange(min_radius, max_radius + 1)
+        angle_values = np.deg2rad(np.arange(0, 360))
+
+        # Calculate corresponding (a, b) coordinates for each edge pixel and radius
+        for radius in radius_values:
+            for angle in angle_values:
+                a_coords = np.round(x_coords - radius * np.cos(angle)).astype(int)
+                b_coords = np.round(y_coords - radius * np.sin(angle)).astype(int)
+
+                # Filter out of bounds coordinates
+                valid_coords_mask = (a_coords >= 0) & (
+                        a_coords < w) & (b_coords >= 0) & (b_coords < h)
+                a_coords = a_coords[valid_coords_mask]
+                b_coords = b_coords[valid_coords_mask]
+
+                # Increment accumulator at valid coordinates
+                accumulator[b_coords, a_coords, radius - min_radius] += 1
+
+        circles = []
+        for radius in range(max_radius - min_radius + 1):
+            acc_slice = accumulator[:, :, radius]
+            peaks = np.argwhere((acc_slice >= threshold))
+            for peak in peaks:
+                x, y, r = peak[1], peak[0], radius + min_radius
+                # Check if the new circle center is at least min_distance away from existing centers
+                # if all(np.sqrt((x - cx) ** 2 + (y - cy) ** 2) >= min_dist for cx, cy, _ in circles):
+                #     circles.append((x, y, r))
+                for cx, cy, _ in circles:
+                    if np.sqrt((x - cx) ** 2 + (y - cy) ** 2) < min_dist:
+                        break
+                else:
+                    circles.append((x, y, r))
+
+        return circles
+
+    def main_hough_circle(self, img, img_edges, min_radius, max_radius, threshold,
+                          min_dist_factor):  # img: original image, img_edges: after Canny
+        circles = self.hough_circle(img_edges, min_radius, max_radius, threshold, img_edges.shape[0] / min_dist_factor)
+        print("no. of circles", len(circles))
+        self.draw_circles(img, circles)
+        return img
