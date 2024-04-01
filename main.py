@@ -1,4 +1,6 @@
 import sys
+
+import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog, QShortcut, QSlider
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
@@ -8,6 +10,7 @@ from classes import Image, WorkerThread, HoughTransform
 import cv2
 import json
 from PyQt5.uic import loadUiType
+import numpy as np
 
 ui, _ = loadUiType("home.ui")
 
@@ -247,7 +250,7 @@ class Application(QMainWindow, ui):
             edge_image, num_rho, num_theta, bin_threshold = self.hough_line_transform()
 
             # Assuming edge_image is already defined
-            line_img, lines = self.hough_obj.find_hough_lines(self.loaded_image, edge_image, num_rho, num_theta,
+            line_img, lines = self.hough_obj.find_hough_lines(np.copy(self.loaded_image), edge_image, num_rho, num_theta,
                                                               bin_threshold)
 
             # Assuming display_image is a method that displays the image in the GUI
@@ -257,7 +260,7 @@ class Application(QMainWindow, ui):
 
         if self.chk_circles.isChecked():
             edge_image, min_radius, max_radius, threshold, min_dist_factor = self.hough_circle_transform()
-            hough_circles = self.hough_obj.main_hough_circle(self.loaded_image, edge_image, min_radius, max_radius,
+            hough_circles = self.hough_obj.main_hough_circle(np.copy(self.loaded_image), edge_image, min_radius, max_radius,
                                              threshold, min_dist_factor)
 
             self.display_image(self.item_hough_output, hough_circles)
@@ -266,8 +269,10 @@ class Application(QMainWindow, ui):
             print("Circles are Detected")
 
         if self.chk_ellipses.isChecked():
-            image_with_ellipses, edge_image = self.hough_obj.detect_ellipses_contour(self.loaded_image, min_radius=10,
-                                                                      max_radius=500, min_distance=0)
+            image_with_ellipses, edge_image = self.hough_obj.detect_ellipses_contour(np.copy(self.loaded_image),
+                                                                                     self.slider_ellipse_min_radius.value(),
+                                                                                     self.slider_ellipse_max_radius.value(),
+                                                                                     self.slider_ellipse_min_dist.value())
             self.display_image(self.item_hough_output, image_with_ellipses)
             self.display_image(self.item_hough_edges, edge_image)
             self.display_image(self.item_canny_output, edge_image)
