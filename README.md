@@ -1,1 +1,1 @@
-# snaky-detector
+# Snaky-detector
