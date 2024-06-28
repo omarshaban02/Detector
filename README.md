@@ -1,4 +1,4 @@
-  
+# Snaky Detector: A PyQt Application for Advanced Edge Detection Techniques  
 
 *Snaky Detector* leverages powerful edge detection algorithms to analyze and process images. The application supports the following techniques:
 
