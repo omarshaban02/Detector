@@ -307,6 +307,7 @@ class Application(QMainWindow, ui):
         for item in [self.item_hough_input, self.item_canny_input, self.item_contour_input]:
             self.display_image(item, self.img_obj.gray_scale_image)
         self.clear_points()
+        self.wgt_contour_input.clear()
 
     def open_image(self):
         file_dialog = QFileDialog(self)

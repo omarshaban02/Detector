@@ -304,6 +304,7 @@ class Application(QMainWindow, ui):
         self.slider_canny_high.valueChanged.connect(lambda value, param="canny_high": setattr(self, param, value))
 
         self.gray_scale_image = self.img_obj.gray_scale_image
+        self.text.clear()
         for item in [self.item_hough_input, self.item_canny_input, self.item_contour_input]:
             self.display_image(item, self.img_obj.gray_scale_image)
         self.clear_points()

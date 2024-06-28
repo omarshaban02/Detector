@@ -76,8 +76,6 @@ class Application(QMainWindow, ui):
                                ] = [pg.ImageItem() for _ in range(7)]
 
         # Initializes application components
-        
-        self.text = None
         self.init_application()
 
         self.btn_start_contour.clicked.connect(self.process_image)
@@ -369,8 +367,6 @@ class Application(QMainWindow, ui):
         - CTRL + Z: Undo Point
         - Left Click: Add Point
         - CTRL + Click: Remove all Points
-        
-        Press Ctrl + H for Help
         """
         QMessageBox.information(self, 'Help', message)
         
@@ -381,9 +377,8 @@ class Application(QMainWindow, ui):
         - Left Click: Add Point
         - CTRL + Click: Remove all Points
         """
-        self.text = pg.TextItem(text = message, color = "w", anchor = (0,0))
-        self.text.setPos(2, 20) 
-        self.wgt_contour_input.addItem(self.text)
+        text = pg.TextItem(text = message, color = "w", anchor = (0,0))
+        text.setPos()
         
         
 
@@ -391,7 +386,6 @@ class Application(QMainWindow, ui):
         self.setup_plotwidgets()
         self.setup_hough_sliders()
         self.setup_checkboxes()
-        self.show_help_active_contour()
 
 
 app = QApplication(sys.argv)

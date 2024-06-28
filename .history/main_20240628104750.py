@@ -76,8 +76,6 @@ class Application(QMainWindow, ui):
                                ] = [pg.ImageItem() for _ in range(7)]
 
         # Initializes application components
-        
-        self.text = None
         self.init_application()
 
         self.btn_start_contour.clicked.connect(self.process_image)
@@ -92,7 +90,6 @@ class Application(QMainWindow, ui):
         self.slider_rho.valueChanged.connect(self.hough_line_transform)
         self.slider_theta.valueChanged.connect(self.hough_line_transform)
         self.slider_thresh.valueChanged.connect(self.hough_line_transform)
-        self.actionHelp.triggered.connect(self.show_help)
 
         self.slider_rho.setRange(150, 400)
         self.slider_theta.setRange(150, 400)
@@ -369,29 +366,14 @@ class Application(QMainWindow, ui):
         - CTRL + Z: Undo Point
         - Left Click: Add Point
         - CTRL + Click: Remove all Points
-        
-        Press Ctrl + H for Help
         """
-        QMessageBox.information(self, 'Help', message)
-        
-    def show_help_active_contour(self):
-        message = """
-        Active Contour Shortcuts:
-        - CTRL + Z: Undo Point
-        - Left Click: Add Point
-        - CTRL + Click: Remove all Points
-        """
-        self.text = pg.TextItem(text = message, color = "w", anchor = (0,0))
-        self.text.setPos(2, 20) 
-        self.wgt_contour_input.addItem(self.text)
-        
+        QMessageBox.information()
         
 
     def init_application(self):
         self.setup_plotwidgets()
         self.setup_hough_sliders()
         self.setup_checkboxes()
-        self.show_help_active_contour()
 
 
 app = QApplication(sys.argv)

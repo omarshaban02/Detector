@@ -271,7 +271,7 @@ QPlotWidget{
     <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab_ht">
        <attribute name="title">
@@ -1828,6 +1828,7 @@ font-size:15px;</string>
      <string>File</string>
     </property>
     <addaction name="actionOpen_Image"/>
+    <addaction name="actionHelp"/>
    </widget>
    <addaction name="menuFile"/>
   </widget>
@@ -1838,6 +1839,14 @@ font-size:15px;</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="text">
+    <string>Help</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
    </property>
   </action>
  </widget>

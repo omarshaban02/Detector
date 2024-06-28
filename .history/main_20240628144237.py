@@ -369,8 +369,6 @@ class Application(QMainWindow, ui):
         - CTRL + Z: Undo Point
         - Left Click: Add Point
         - CTRL + Click: Remove all Points
-        
-        Press Ctrl + H for Help
         """
         QMessageBox.information(self, 'Help', message)
         
